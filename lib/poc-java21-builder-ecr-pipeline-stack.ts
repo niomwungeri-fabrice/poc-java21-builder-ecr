@@ -18,17 +18,17 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
       synth: new CodeBuildStep('Synth', {
         // Use local directory `./code` as the input source
         input: CodePipelineSource.gitHub("niomwungeri-fabrice/poc-java21-builder-ecr", "main"),
-        commands: [
-          'mvn clean install -DskipTests', // Build the Java Spring Boot application
-          'npx cdk synth'                  // Synthesize the CDK application
-        ],
-        // Use the custom ECR image as the build environment
+        commands: ['npm i','npm ci', 'npm run build_staging', 'npx cdk synth'],
+      }),      // Use the custom ECR image as the build environment
+      codeBuildDefaults: {
         buildEnvironment: {
           buildImage: codebuild.LinuxBuildImage.fromCodeBuildImageId("java21-builder-ecr:latest"), // Custom ECR image with required Java setup
           privileged: true, // Required for Docker commands in case they are needed
         },
-      }),
+      }
     });
+
+
 
     // Add the testing stage
     const testingStage = pipeline.addStage(new MyPipelineStage(this, "uat", {

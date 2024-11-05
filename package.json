@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "build_staging": "mvn -f /code/pom.xml clean package"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
