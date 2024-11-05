@@ -24,7 +24,7 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
         ],
         // Use the custom ECR image as the build environment
         buildEnvironment: {
-          buildImage: codebuild.LinuxBuildImage.fromDockerRegistry("java21-builder-ecr:latest"), // Custom ECR image with required Java setup
+          buildImage: codebuild.LinuxBuildImage.fromCodeBuildImageId("java21-builder-ecr:latest"), // Custom ECR image with required Java setup
           privileged: true, // Required for Docker commands in case they are needed
         },
       }),
