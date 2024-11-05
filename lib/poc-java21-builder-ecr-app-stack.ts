@@ -31,7 +31,7 @@ export class PocJava21BuilderEcrAppStack extends cdk.Stack {
       desiredCount: 1,
       cpu: 256,
       memoryLimitMiB: 512,
-      publicLoadBalancer: true, // Expose endpoint publicly
+      publicLoadBalancer: true, 
       taskImageOptions: {
         image: ecs.ContainerImage.fromDockerImageAsset(dockerImage),
         containerPort: 8080,
