@@ -10,10 +10,11 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
     super(scope, id, props);
 
     // Reference the existing ECR repository with the custom Java environment image
-    const ecrRepository = ecr.Repository.fromRepositoryArn(this, 'CustomJavaImage', `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`);
-
+    // const ecrRepository = ecr.Repository.fromRepositoryArn(this, 'CustomJavaImage', `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`);
+    // console.log("ecrRepository have been cloned")
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: 'TestPipeline',
+      dockerEnabledForSelfMutation: true,
       synth: new CodeBuildStep('Synth', {
         // Use local directory `./code` as the input source
         input: CodePipelineSource.gitHub("niomwungeri-fabrice/poc-java21-builder-ecr", "main"),
@@ -23,7 +24,7 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
         ],
         // Use the custom ECR image as the build environment
         buildEnvironment: {
-          buildImage: codebuild.LinuxBuildImage.fromEcrRepository(ecrRepository), // Custom ECR image with required Java setup
+          buildImage: codebuild.LinuxBuildImage.fromDockerRegistry("java21-builder-ecr:latest"), // Custom ECR image with required Java setup
           privileged: true, // Required for Docker commands in case they are needed
         },
       }),
