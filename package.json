@@ -9,7 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "build_staging": "java -version"
+    "build_staging": "./mvnw -f /code/pom.xml clean install -DskipTests"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
