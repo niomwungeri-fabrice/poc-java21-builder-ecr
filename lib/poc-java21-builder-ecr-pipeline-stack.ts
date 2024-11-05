@@ -3,18 +3,16 @@ import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, CodeBuildStep, ManualApprovalStep } from 'aws-cdk-lib/pipelines';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
-import * as iam from 'aws-cdk-lib/aws-iam';
+import * as iam from 'aws-cdk-lib/aws-iam'; // Import IAM for permissions
 import { MyPipelineStage } from './stage';
 
 export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Step 1: Create an ECR repository    
-    const ecrRepository = new ecr.Repository(this, 'MyEcrRepository', { repositoryName: 'java21-builder-ecr', removalPolicy: cdk.RemovalPolicy.DESTROY, });
-    // Reference the created ECR repository with the custom Java environment image    
-    const ecrRepositoryArn = `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/${ecrRepository.repositoryName}`;
-
+    // Reference the existing ECR repository with the custom Java environment image
+    const ecrRepositoryArn = `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`;
+    const ecrRepository = ecr.Repository.fromRepositoryName(this, 'MyJavaImageRepo', 'java21-builder-ecr');
 
     // Output the repository details
     new cdk.CfnOutput(this, 'EcrRepositoryName', {
@@ -31,25 +29,6 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
       value: ecrRepository.repositoryUri,
       description: 'The URI of the ECR repository',
     });
-
-    // Step 2: Define CodeBuild project to build and push Docker image to ECR    
-    const buildProject = new codebuild.Project(this, 'MyBuildProject', {
-      projectName: 'my-build-project',
-      buildSpec: codebuild.BuildSpec.fromAsset('./buildspec.yml'),
-      environment: {
-        buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5,
-        privileged: true, // Required for Docker builds
-      },
-      environmentVariables: {
-        'AWS_DEFAULT_REGION': { value: this.region },
-        'AWS_ACCOUNT_ID': { value: this.account },
-        'IMAGE_REPO_NAME': { value: ecrRepository.repositoryName },
-        'IMAGE_TAG': { value: 'latest' },
-      },
-    });
-
-    // add permission
-    ecrRepository.grantPullPush(buildProject)
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: 'TestPipeline',
@@ -85,6 +64,7 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
     });
 
 
+    // ecrRepository.grantPullPush(codebuild)
     // Add the testing stage
     const testingStage = pipeline.addStage(new MyPipelineStage(this, "uat", {
       env: { account: '354918376149', region: 'ca-central-1' },
