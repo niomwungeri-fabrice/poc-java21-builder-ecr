@@ -9,7 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "pre_build": "java -version && node -v && npm -v && mvn -v",
+    "pre_build": "java -version && node -v && npm -v && mvn -v && docker -v",
     "build_staging": "npm run pre_build && mvn -f ./code/pom.xml clean install -DskipTests"
   },
   "devDependencies": {
