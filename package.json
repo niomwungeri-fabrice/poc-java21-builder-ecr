@@ -10,7 +10,7 @@
     "test": "jest",
     "cdk": "cdk",
     "pre_build": "java -version && node -v && npm -v && mvn -v",
-    "build_staging": "npm run pre_build && mvn -f /code/pom.xml clean install -DskipTests"
+    "build_staging": "npm run pre_build && mvn -f ./code/pom.xml clean install -DskipTests"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
