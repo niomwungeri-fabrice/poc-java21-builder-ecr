@@ -15,13 +15,29 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
     // const ecrRepository = ecr.Repository.fromRepositoryArn(this, 'CustomJavaImage', ecrRepositoryArn);
     const ecrRepository = ecr.Repository.fromRepositoryName(this, 'MyJavaImageRepo', 'java21-builder-ecr');
 
+    // Output the repository details
+    new cdk.CfnOutput(this, 'EcrRepositoryName', {
+      value: ecrRepository.repositoryName,
+      description: 'The name of the ECR repository',
+    });
+
+    new cdk.CfnOutput(this, 'EcrRepositoryArn', {
+      value: ecrRepository.repositoryArn,
+      description: 'The ARN of the ECR repository',
+    });
+
+    new cdk.CfnOutput(this, 'EcrRepositoryUri', {
+      value: ecrRepository.repositoryUri,
+      description: 'The URI of the ECR repository',
+    });
+
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: 'TestPipeline',
       dockerEnabledForSelfMutation: true,
       synth: new CodeBuildStep('Synth', {
         // Use local directory `./code` as the input source
         input: CodePipelineSource.gitHub("niomwungeri-fabrice/poc-java21-builder-ecr", "main"),
-        commands: ['npm i','npm ci', 'npm run build_staging', 'npx cdk synth'],
+        commands: ['npm i', 'npm ci', 'npm run build_staging', 'npx cdk synth'],
       }),
       codeBuildDefaults: {
         buildEnvironment: {
@@ -42,7 +58,7 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
       },
     });
 
-    
+
     // ecrRepository.grantPullPush(codebuild)
     // Add the testing stage
     const testingStage = pipeline.addStage(new MyPipelineStage(this, "uat", {
