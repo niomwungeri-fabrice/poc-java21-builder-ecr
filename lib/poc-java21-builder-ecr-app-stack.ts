@@ -7,7 +7,7 @@ import * as ecrAssets from 'aws-cdk-lib/aws-ecr-assets';
 import { Duration } from 'aws-cdk-lib';
 
 export class PocJava21BuilderEcrAppStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, stageName: string,props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, stageName: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // use default
@@ -36,7 +36,8 @@ export class PocJava21BuilderEcrAppStack extends cdk.Stack {
         image: ecs.ContainerImage.fromDockerImageAsset(dockerImage),
         containerPort: 8080,
         environment: {
-          'JAVA_OPTS': '-Xms512m -Xmx512m' // Optional Java memory settings
+          'JAVA_OPTS': '-Xms512m -Xmx512m',
+          "stageName": stageName
         }
       },
     });
