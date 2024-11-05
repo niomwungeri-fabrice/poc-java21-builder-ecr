@@ -33,6 +33,12 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: 'TestPipeline',
       dockerEnabledForSelfMutation: true,
+      assetPublishingCodeBuildDefaults: {
+        buildEnvironment: {
+          buildImage: codebuild.LinuxBuildImage.fromEcrRepository(ecrRepository, 'latest'),
+          privileged: true, // Required for Docker commands in case they are needed
+        },
+      },
       synth: new CodeBuildStep('Synth', {
         // Use local directory `./code` as the input source
         input: CodePipelineSource.gitHub("niomwungeri-fabrice/poc-java21-builder-ecr", "main"),
