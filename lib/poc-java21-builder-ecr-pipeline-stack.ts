@@ -12,6 +12,8 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
 
     // Reference the existing ECR repository with the custom Java environment image
     const ecrRepositoryArn = `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`;
+    // const ecrRepository = ecr.Repository.fromRepositoryArn(this, 'CustomJavaImage', ecrRepositoryArn);
+    const ecrRepository = ecr.Repository.fromRepositoryName(this, 'MyJavaImageRepo', 'java21-builder-ecr');
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: 'TestPipeline',
@@ -23,7 +25,7 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
       }),
       codeBuildDefaults: {
         buildEnvironment: {
-          buildImage: codebuild.LinuxBuildImage.fromCodeBuildImageId("java21-builder-ecr:latest"), // Custom ECR image with required Java setup
+          buildImage: codebuild.LinuxBuildImage.fromEcrRepository(ecrRepository, 'latest'), // Custom ECR image with required Java setup
           privileged: true, // Required for Docker commands in case they are needed
         },
         // Add permissions to access ECR
@@ -40,6 +42,8 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
       },
     });
 
+    
+    // ecrRepository.grantPullPush(codebuild)
     // Add the testing stage
     const testingStage = pipeline.addStage(new MyPipelineStage(this, "uat", {
       env: { account: '354918376149', region: 'ca-central-1' },
