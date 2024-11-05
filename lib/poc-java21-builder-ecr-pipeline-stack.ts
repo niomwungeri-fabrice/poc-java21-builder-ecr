@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, CodeBuildStep, ManualApprovalStep } from 'aws-cdk-lib/pipelines';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam'; // Import IAM for permissions
 import { MyPipelineStage } from './stage';
 
 export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
@@ -10,8 +11,8 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
     super(scope, id, props);
 
     // Reference the existing ECR repository with the custom Java environment image
-    // const ecrRepository = ecr.Repository.fromRepositoryArn(this, 'CustomJavaImage', `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`);
-    // console.log("ecrRepository have been cloned")
+    const ecrRepositoryArn = `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`;
+
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: 'TestPipeline',
       dockerEnabledForSelfMutation: true,
@@ -19,16 +20,25 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
         // Use local directory `./code` as the input source
         input: CodePipelineSource.gitHub("niomwungeri-fabrice/poc-java21-builder-ecr", "main"),
         commands: ['npm i','npm ci', 'npm run build_staging', 'npx cdk synth'],
-      }),      // Use the custom ECR image as the build environment
+      }),
       codeBuildDefaults: {
         buildEnvironment: {
           buildImage: codebuild.LinuxBuildImage.fromCodeBuildImageId("java21-builder-ecr:latest"), // Custom ECR image with required Java setup
           privileged: true, // Required for Docker commands in case they are needed
         },
-      }
+        // Add permissions to access ECR
+        rolePolicy: [
+          new iam.PolicyStatement({
+            actions: [
+              "ecr:GetAuthorizationToken",         // To get authorization token for ECR
+              "ecr:BatchCheckLayerAvailability",   // To check if image layers are available
+              "ecr:GetDownloadUrlForLayer"         // To download image layers
+            ],
+            resources: [ecrRepositoryArn],
+          }),
+        ],
+      },
     });
-
-
 
     // Add the testing stage
     const testingStage = pipeline.addStage(new MyPipelineStage(this, "uat", {
