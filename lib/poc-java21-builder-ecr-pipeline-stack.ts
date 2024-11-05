@@ -34,9 +34,8 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
       pipelineName: 'TestPipeline',
       dockerEnabledForSelfMutation: true,
       assetPublishingCodeBuildDefaults: {
-        buildEnvironment: {
-          buildImage: codebuild.LinuxBuildImage.fromEcrRepository(ecrRepository, 'latest'),
-          privileged: true, // Required for Docker commands in case they are needed
+        buildEnvironment: { 
+          buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_CORETTO_11,
         },
       },
       synth: new CodeBuildStep('Synth', {
