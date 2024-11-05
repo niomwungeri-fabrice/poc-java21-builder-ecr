@@ -12,7 +12,6 @@ export class PocJava21BuilderEcrPipelineStack extends cdk.Stack {
 
     // Reference the existing ECR repository with the custom Java environment image
     const ecrRepositoryArn = `arn:aws:ecr:${props?.env?.region}:${props?.env?.account}:repository/java21-builder-ecr`;
-    // const ecrRepository = ecr.Repository.fromRepositoryArn(this, 'CustomJavaImage', ecrRepositoryArn);
     const ecrRepository = ecr.Repository.fromRepositoryName(this, 'MyJavaImageRepo', 'java21-builder-ecr');
 
     // Output the repository details
