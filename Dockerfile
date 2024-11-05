@@ -14,5 +14,5 @@ RUN yum install -y docker && \
     yum clean all
 # Verify installations
 RUN java -version && node -v && npm -v && mvn -v && docker -v
-# Optional: Start Docker daemon if needed
+# Optional: Start Docker daemon if needed.
 CMD ["sh", "-c", "dockerd & while sleep 1000; do :; done"]
