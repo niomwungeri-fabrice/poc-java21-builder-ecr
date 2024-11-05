@@ -9,7 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "build_staging": "./mvnw -f /code/pom.xml clean install -DskipTests"
+    "pre_build": "java -version && node -v && npm -v && mvn -v",
+    "build_staging": "npm run pre_build && mvn -f /code/pom.xml clean install -DskipTests"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
